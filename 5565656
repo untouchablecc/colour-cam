@@ -23,14 +23,14 @@ local easingFunctions = {
 
 local function getClosestPlayer()
     local closestPlayer = nil
-    local shortestDistance = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Radius'] or 100
+    local shortestDistance = Camlock['CamlockOptions']['Radius']
     local mousePosition = UserInputService:GetMouseLocation()
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and (not Camlock['Checks'] or not Camlock['Checks']['TeamCheck'] or player.Team ~= LocalPlayer.Team) then
             local character = player.Character
-            if character and character:FindFirstChild(Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso") then
-                local hitbox = character[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso"]
+            if character and character:FindFirstChild(Camlock['CamlockOptions']['Hitbox']) then
+                local hitbox = character[Camlock['CamlockOptions']['Hitbox']]
                 local screenPoint = Camera:WorldToScreenPoint(hitbox.Position)
                 local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
 
@@ -48,14 +48,14 @@ end
 local function aimAtPlayer(target)
     if not target then return end
     local character = target.Character
-    if not character or not character:FindFirstChild(Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso") then return end
+    if not character or not character:FindFirstChild(Camlock['CamlockOptions']['Hitbox']) then return end
 
-    local hitbox = character[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso"]
+    local hitbox = character[Camlock['CamlockOptions']['Hitbox']]
     local targetPosition = hitbox.Position
     local targetPositionOnScreen = Vector2.new(Camera:WorldToScreenPoint(targetPosition).X, Camera:WorldToScreenPoint(targetPosition).Y)
     local mousePosition = UserInputService:GetMouseLocation()
 
-    local t = Camlock['Smoothing'] and Camlock['Smoothing']['SmoothingAmount'] * Camlock['Smoothing']['SmoothingSpeed'] or 0
+    local t = Camlock['Smoothing']['SmoothingAmount'] * Camlock['Smoothing']['SmoothingSpeed']
     t = math.clamp(t, 0, 1)
     local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     Camera.CFrame = Camera.CFrame:lerp(targetCFrame, t)
@@ -64,9 +64,9 @@ local function aimAtPlayer(target)
 end
 
 local function toggleAimlock()
-    if Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] == "Toggle" then
+    if Camlock['Checks']['ToggleHoldMode'] == "Toggle" then
         isCamlockToggled = not isCamlockToggled
-    elseif Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
+    elseif Camlock['Checks']['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = true
     end
 
@@ -78,10 +78,6 @@ local function toggleAimlock()
 end
 
 local function updateAim()
-    if not Camlock or not Camlock['CamlockOptions'] or not Camlock['Checks'] or not Camlock['Smoothing'] then
-        return
-    end
-
     if isCamlockToggled and Camlock['Checks']['StickyAim'] then
         if not targetPlayer or not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
@@ -98,14 +94,14 @@ end
 
 local function onKeyPress(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'] then
+    if input.KeyCode == Camlock['CamlockOptions']['Keybind'] then
         toggleAimlock()
     end
 end
 
 local function onKeyRelease(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'] and Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
+    if input.KeyCode == Camlock['CamlockOptions']['Keybind'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
@@ -122,26 +118,26 @@ UserInputService.InputEnded:Connect(onKeyRelease)
 if getgenv()['NotificationOnInject'] then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Aimlock Script",
-        Text = "Press " .. (Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X']] and Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'].Name or "Keybind") .. " to toggle aimlock.",
+        Text = "Press " .. Camlock['CamlockOptions']['Keybind'].Name .. " to toggle aimlock.",
         Duration = 5,
     })
 end
 
 -- Expose settings using getgenv()
-getgenv()['PredictionAmount'] = Camlock['AimbotSettings'] and Camlock['AimbotSettings']['PredictionAmount'] or 0.0112 -- Default value
-getgenv()['AimbotStrengthAmount'] = Camlock['AimbotSettings'] and Camlock['AimbotSettings']['AimbotStrengthAmount'] or 0.006 -- Default value
-getgenv()['Keybind'] = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'
-getgenv()['EasingStyle'] = Camlock['Smoothing'] and Camlock['Smoothing']['EasingStyle'] or "Linear" -- Default value
-getgenv()['Hitbox'] = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso"
-getgenv()['StickyAim'] = Camlock['Checks'] and Camlock['Checks']['StickyAim'] or true -- Default value
-getgenv()['SmoothingAmount'] = Camlock['Smoothing'] and Camlock['Smoothing']['SmoothingAmount'] or 5.9 -- Default value
-getgenv()['SmoothingSpeed'] = Camlock['Smoothing'] and Camlock['Smoothing']['SmoothingSpeed'] or 0.0005 -- Default value
-getgenv()['SmoothingStyle'] = Camlock['Smoothing'] and Camlock['Smoothing']['SmoothingStyle'] or "Linear" -- Default value
-getgenv()['HumanizeMovements'] = Camlock['Smoothing'] and Camlock['Smoothing']['HumanizeMovements'] or true -- Default value
-getgenv()['RandomizeMovements'] = Camlock['Smoothing'] and Camlock['Smoothing']['RandomizeMovements'] or true -- Default value
-getgenv()['AdaptiveSmoothing'] = Camlock['Smoothing'] and Camlock['Smoothing']['AdaptiveSmoothing'] or true -- Default value
-getgenv()['Interpolation'] = Camlock['Smoothing'] and Camlock['Smoothing']['Interpolation'] or true -- Default value
-getgenv()['PingCompensation'] = Camlock['Smoothing'] and Camlock['Smoothing']['PingCompensation'] or true -- Default value
-getgenv()['ToggleHoldMode'] = Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] or "Toggle" -- Default value
-getgenv()['Enabled'] = Camlock['Checks'] and Camlock['Checks']['Enabled'] or false -- Default value
-getgenv()['UsePrediction'] = Camlock['AimbotSettings'] and Camlock['AimbotSettings']['UsePrediction'] or true -- Default value
+getgenv()['PredictionAmount'] = Camlock['AimbotSettings']['PredictionAmount']
+getgenv()['AimbotStrengthAmount'] = Camlock['AimbotSettings']['AimbotStrengthAmount']
+getgenv()['Keybind'] = Camlock['CamlockOptions']['Keybind']
+getgenv()['EasingStyle'] = Camlock['Smoothing']['EasingStyle']
+getgenv()['Hitbox'] = Camlock['CamlockOptions']['Hitbox']
+getgenv()['StickyAim'] = Camlock['Checks']['StickyAim']
+getgenv()['SmoothingAmount'] = Camlock['Smoothing']['SmoothingAmount']
+getgenv()['SmoothingSpeed'] = Camlock['Smoothing']['SmoothingSpeed']
+getgenv()['SmoothingStyle'] = Camlock['Smoothing']['SmoothingStyle']
+getgenv()['HumanizeMovements'] = Camlock['Smoothing']['HumanizeMovements']
+getgenv()['RandomizeMovements'] = Camlock['Smoothing']['RandomizeMovements']
+getgenv()['AdaptiveSmoothing'] = Camlock['Smoothing']['AdaptiveSmoothing']
+getgenv()['Interpolation'] = Camlock['Smoothing']['Interpolation']
+getgenv()['PingCompensation'] = Camlock['Smoothing']['PingCompensation']
+getgenv()['ToggleHoldMode'] = Camlock['Checks']['ToggleHoldMode']
+getgenv()['Enabled'] = Camlock['Checks']['Enabled']
+getgenv()['UsePrediction'] = Camlock['AimbotSettings']['UsePrediction']
