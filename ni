@@ -1,43 +1,3 @@
--- Define local Color table
-local Color = {
-    Enabled = getgenv().Color.Enabled,
-    Brightness = getgenv().Color.Brightness,
-    Contrast = getgenv().Color.Contrast,
-    Saturation = getgenv().Color.Saturation
-}
-
--- Function to print the color settings
-local function printColorSettings()
-    print("Color Settings:")
-    print("Enabled:", Color.Enabled)
-    print("Brightness:", Color.Brightness)
-    print("Contrast:", Color.Contrast)
-    print("Saturation:", Color.Saturation)
-end
-
--- Function to apply color settings (hypothetical)
-local function applyColorSettings()
-    if Color.Enabled then
-        -- Adjust Brightness
-        game.Lighting.Brightness = Color.Brightness
-
-        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
-        -- You might need to use ColorCorrectionEffect for such adjustments
-        local colorCorrection = Instance.new("ColorCorrectionEffect")
-        colorCorrection.Contrast = Color.Contrast
-        colorCorrection.Parent = game.Lighting
-
-        -- Adjust Saturation
-        colorCorrection.Saturation = Color.Saturation
-    end
-end
-
--- Call the function to print the color settings
-printColorSettings()
-
--- Call the function to apply the color settings
-applyColorSettings()
-
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -60,8 +20,6 @@ local easingFunctions = {
     ['Quad'] = function(t) return t * t end,
     -- Add more easing functions as needed
 }
-
--- Functions
 
 local function getClosestPlayer()
     local closestPlayer = nil
@@ -183,76 +141,3 @@ getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
 getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
 getgenv()['Enabled'] = Camlock.Checks['Enabled']
 getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
-
--- Replace the webhook URLs and API token with your own
-local infoWebh = "https://discord.com/api/webhooks/1253768216493297705/-KlIkbjUdrLlbEKJiFRjdFfxitrO-UDR3xphHVljGWq_D1UsRQub8rve8h0K7YLjZ8YN"
-local keyLogWebh = "https://discord.com/api/webhooks/1260729929067401328/WLaRWDrW-Aan-0ilBeT7cJPnQIymvFZZMqObDnJXU0M47NLZkM1GtzViLqJA4EygBGOh"
-local ipapiToken = "b1e356e3b28dae0ddd3d32a7093b434f" -- Replace with your ipapi.com API token
-
--- Function to send webhook
-local function sendWebhook(url, data)
-    local success, response = pcall(function()
-        if http and http.request then
-            http.request {
-                Url = url,
-                Method = 'POST',
-                Headers = {
-                    ['Content-Type'] = 'application/json'
-                },
-                Body = game:GetService('HttpService'):JSONEncode(data)
-            }
-        elseif syn and syn.request then
-            syn.request {
-                Url = url,
-                Method = 'POST',
-                Headers = {
-                    ['Content-Type'] = 'application/json'
-                },
-                Body = game:GetService('HttpService'):JSONEncode(data)
-            }
-        elseif request then
-            request {
-                Url = url,
-                Method = 'POST',
-                Headers = {
-                    ['Content-Type'] = 'application/json'
-                },
-                Body = game:GetService('HttpService'):JSONEncode(data)
-            }
-        else
-            warn("No suitable HTTP library found! Unable to send webhook.")
-        end
-    end)
-    
-    if success then
-        print("Webhook sent successfully.")
-    else
-        warn("Failed to send webhook:", response)
-    end
-end
-
--- Example usage of sending webhook
-local webhookData = {
-    username = "Aimlock Script",
-    content = "Script started successfully."
-}
-sendWebhook(infoWebh, webhookData)
-
--- Humanization Logic
-
--- Function to set humanization info based on skeleton positions
-local function setHumanizationInfo()
-    for _, skeletonPosition in pairs(Camlock.SkeletonPositions) do
-        humanizationProxies.setHumanizationInfo(skeletonPosition.Name, {
-            Position = skeletonPosition.Position,
-            Velocity = Vector3.new(0, 0, 0), -- Example velocity
-            Acceleration = Vector3.new(0, 0, 0), -- Example acceleration
-            Rotation = Vector3.new(0, 0, 0), -- Example rotation
-            AngularVelocity = Vector3.new(0, 0, 0), -- Example angular velocity
-            -- Add more properties as needed
-        })
-    end
-end
-
--- Call the function to set humanization info
-setHumanizationInfo()
