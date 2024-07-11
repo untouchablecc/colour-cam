@@ -1,0 +1,57 @@
+script_key="";
+Color = {
+    ['Enabled'] = true,
+    ['Brightness'] = 0.01, -- My personal sets
+    ['Contrast'] = 0.05, -- My personal sets
+    ['Saturation'] = 1.7 -- My personal sets
+}
+-- Camlock settings
+local Camlock = {
+    ['Notification on inject'] = true, -- Show notification on inject
+    CamlockOptions = {
+        ['PredictionAmount'] = 0.0120,
+        ['Radius'] = 1000,
+        ['AimbotStrength'] = true,
+        ['AimbotStrengthAmount'] = 0.006,
+        ['Keybind'] = Enum.KeyCode.Z, -- Make sure your keybind is a valid KeyCode
+        ['EasingStyle'] = "Bezier",
+        ['AvailableEasingStyles'] = {
+            ['Linear'] = "Linear",
+            ['Standard'] = "Standard",
+            ['Sine'] = "Sine",
+            ['Quad'] = "Quad",
+            ['Quint'] = "Quint",
+            ['Expo'] = "Expo",
+            ['Circ'] = "Circular",
+            ['Back'] = "Back",
+            ['Elastic'] = "Elastic",
+            ['Bounce'] = "Bounce",
+            ['Bezier'] = "Bezier" 
+        },
+        ['Hitbox'] = "UpperTorso",
+        ['StickyAim'] = true,
+    },
+    Smoothing = {
+        ['Smoothing Amount'] = 2.8, -- Amount of smoothing (0 = no smoothing, 1 = very smooth)
+        ['Smoothing Speed'] = 0.7, -- Speed of smoothing interpolation
+        ['Smoothing Style'] = "Linear", -- Default smoothing style
+        ['Additional Features'] = {
+            ['Humanize Movements'] = true, -- Humanize movements for more natural aim
+            ['Randomize Movements'] = true, -- Randomize movements for added realism
+            ['Adaptive Smoothing'] = true, -- Adaptive smoothing based on target movement
+            ['Interpolation'] = true, -- Interpolate aim for smoother transitions
+            ['Ping Compensation'] = true, -- Compensate for network latency 
+        }
+    },
+    Checks = {
+        ['Toggle Hold Mode'] = "Toggle",
+        ['Enabled'] = false,
+        ['Use Prediction'] = true,
+        ['Team Check'] = false,
+        ['Knock Check'] = true, 
+        ['Wall Check'] = true,
+        ['First Person'] = true,
+        ['Third Person'] = true, 
+    }
+}
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/987d7a78eacf6a0c455981a52a241c9e.lua"))()
