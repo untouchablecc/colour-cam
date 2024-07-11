@@ -1,33 +1,34 @@
 -- Function to print the color settings
 local function printColorSettings()
-    print("Color Settings:")
-    print("Enabled:", Color.Enabled)
-    print("Brightness:", Color.Brightness)
-    print("Contrast:", Color.Contrast)
-    print("Saturation:", Color.Saturation)
+    if Color then
+        print("Color Settings:")
+        print("Enabled:", Color.Enabled)
+        print("Brightness:", Color.Brightness)
+        print("Contrast:", Color.Contrast)
+        print("Saturation:", Color.Saturation)
+    else
+        print("Color table is nil or undefined")
+    end
 end
 
--- Function to apply color settings (hypothetical)
+-- Function to apply color settings
 local function applyColorSettings()
-    if Color.Enabled then
-        -- Adjust Brightness
+    if Color and Color.Enabled then
+        -- Example: Adjusting brightness
         game.Lighting.Brightness = Color.Brightness
-
-        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
-        -- You might need to use ColorCorrectionEffect for such adjustments
+        
+        -- Example: Applying contrast (using ColorCorrectionEffect as a hypothetical example)
         local colorCorrection = Instance.new("ColorCorrectionEffect")
         colorCorrection.Contrast = Color.Contrast
         colorCorrection.Parent = game.Lighting
-
-        -- Adjust Saturation
+        
+        -- Example: Adjusting saturation
         colorCorrection.Saturation = Color.Saturation
     end
 end
 
--- Call the function to print the color settings
+-- Call the functions
 printColorSettings()
-
--- Call the function to apply the color settings
 applyColorSettings()
 
 -- Expose settings using getgenv()
