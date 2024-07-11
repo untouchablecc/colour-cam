@@ -23,7 +23,7 @@ local easingFunctions = {
 
 local function getClosestPlayer()
     local closestPlayer = nil
-    local shortestDistance = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Radius'] or 100 -- Default value
+    local shortestDistance = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Radius'] or 100
     local mousePosition = UserInputService:GetMouseLocation()
 
     for _, player in ipairs(Players:GetPlayers()) do
