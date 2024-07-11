@@ -7,12 +7,6 @@ Color = {
     ['Contrast'] = 0.05, -- My personal sets
     ['Saturation'] = 1.7 -- My personal sets
 }
-Color = {
-    ['Enabled'] = true,
-    ['Brightness'] = 0.01, -- My personal sets
-    ['Contrast'] = 0.05, -- My personal sets
-    ['Saturation'] = 1.7 -- My personal sets
-}
 -- Camlock Options
 Camlock = {
     ['ToggleHoldMode'] = "Hold", -- Added Toggle/Hold Mode (default to Hold)
