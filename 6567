@@ -98,14 +98,14 @@ end
 
 local function onKeyPress(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'] then
+    if input.KeyCode == (Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or Enum.KeyCode.X) then
         toggleAimlock()
     end
 end
 
 local function onKeyRelease(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'] and Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
+    if input.KeyCode == (Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or Enum.KeyCode.X) and Camlock['Checks'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
@@ -122,7 +122,7 @@ UserInputService.InputEnded:Connect(onKeyRelease)
 if getgenv()['NotificationOnInject'] then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Aimlock Script",
-        Text = "Press " .. (Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X']] and Enum.KeyCode[Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'].Name or "Keybind") .. " to toggle aimlock.",
+        Text = "Press " .. (Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] and Camlock['CamlockOptions']['Keybind'].Name or "Keybind") .. " to toggle aimlock.",
         Duration = 5,
     })
 end
@@ -130,7 +130,7 @@ end
 -- Expose settings using getgenv()
 getgenv()['PredictionAmount'] = Camlock['AimbotSettings'] and Camlock['AimbotSettings']['PredictionAmount'] or 0.0112 -- Default value
 getgenv()['AimbotStrengthAmount'] = Camlock['AimbotSettings'] and Camlock['AimbotSettings']['AimbotStrengthAmount'] or 0.006 -- Default value
-getgenv()['Keybind'] = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or 'X'
+getgenv()['Keybind'] = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Keybind'] or Enum.KeyCode.X
 getgenv()['EasingStyle'] = Camlock['Smoothing'] and Camlock['Smoothing']['EasingStyle'] or "Linear" -- Default value
 getgenv()['Hitbox'] = Camlock['CamlockOptions'] and Camlock['CamlockOptions']['Hitbox'] or "UpperTorso"
 getgenv()['StickyAim'] = Camlock['Checks'] and Camlock['Checks']['StickyAim'] or true -- Default value
