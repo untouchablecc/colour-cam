@@ -37,7 +37,7 @@ printColorSettings()
 
 -- Call the function to apply the color settings
 applyColorSettings()
---Services
+-- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -59,6 +59,8 @@ local easingFunctions = {
     ['Quad'] = function(t) return t * t end,
     -- Add more easing functions as needed
 }
+
+-- Functions
 
 local function getClosestPlayer()
     local closestPlayer = nil
