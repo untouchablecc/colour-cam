@@ -1,3 +1,45 @@
+-- Define local Color table
+local Color = {
+    Enabled = getgenv().Color.Enabled,
+    Brightness = getgenv().Color.Brightness,
+    Contrast = getgenv().Color.Contrast,
+    Saturation = getgenv().Color.Saturation
+}
+
+-- Function to print the color settings
+local function printColorSettings()
+    print("Color Settings:")
+    print("Enabled:", Color.Enabled)
+    print("Brightness:", Color.Brightness)
+    print("Contrast:", Color.Contrast)
+    print("Saturation:", Color.Saturation)
+end
+
+-- Function to apply color settings (hypothetical)
+local function applyColorSettings()
+    if Color.Enabled then
+        -- Adjust Brightness
+        game.Lighting.Brightness = Color.Brightness
+
+        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
+        -- You might need to use ColorCorrectionEffect for such adjustments
+        local colorCorrection = Instance.new("ColorCorrectionEffect")
+        colorCorrection.Contrast = Color.Contrast
+        colorCorrection.Parent = game.Lighting
+
+        -- Adjust Saturation
+        colorCorrection.Saturation = Color.Saturation
+    end
+end
+
+-- Call the function to print the color settings
+printColorSettings()
+
+-- Call the function to apply the color settings
+applyColorSettings()
+
+-- Function to print the color settings (removed for simplicity)
+-- Function to apply color settings (removed for simplicity)
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -23,14 +65,14 @@ local easingFunctions = {
 
 local function getClosestPlayer()
     local closestPlayer = nil
-    local shortestDistance = Camlock['CamlockOptions']['Radius']
+    local shortestDistance = Camlock.CamlockOptions['Radius']
     local mousePosition = UserInputService:GetMouseLocation()
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and (not Camlock['Checks'] or not Camlock['Checks']['TeamCheck'] or player.Team ~= LocalPlayer.Team) then
+        if player ~= LocalPlayer and (not Camlock.Checks['TeamCheck'] or player.Team ~= LocalPlayer.Team) then
             local character = player.Character
-            if character and character:FindFirstChild(Camlock['CamlockOptions']['Hitbox']) then
-                local hitbox = character[Camlock['CamlockOptions']['Hitbox']]
+            if character and character:FindFirstChild(Camlock.CamlockOptions['Hitbox']) then
+                local hitbox = character[Camlock.CamlockOptions['Hitbox']]
                 local screenPoint = Camera:WorldToScreenPoint(hitbox.Position)
                 local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
 
@@ -48,14 +90,14 @@ end
 local function aimAtPlayer(target)
     if not target then return end
     local character = target.Character
-    if not character or not character:FindFirstChild(Camlock['CamlockOptions']['Hitbox']) then return end
+    if not character or not character:FindFirstChild(Camlock.CamlockOptions['Hitbox']) then return end
 
-    local hitbox = character[Camlock['CamlockOptions']['Hitbox']]
+    local hitbox = character[Camlock.CamlockOptions['Hitbox']]
     local targetPosition = hitbox.Position
     local targetPositionOnScreen = Vector2.new(Camera:WorldToScreenPoint(targetPosition).X, Camera:WorldToScreenPoint(targetPosition).Y)
     local mousePosition = UserInputService:GetMouseLocation()
 
-    local t = Camlock['Smoothing']['SmoothingAmount'] * Camlock['Smoothing']['SmoothingSpeed']
+    local t = Camlock.Smoothing['SmoothingAmount'] * Camlock.Smoothing['SmoothingSpeed']
     t = math.clamp(t, 0, 1)
     local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     Camera.CFrame = Camera.CFrame:lerp(targetCFrame, t)
@@ -64,9 +106,9 @@ local function aimAtPlayer(target)
 end
 
 local function toggleAimlock()
-    if Camlock['Checks']['ToggleHoldMode'] == "Toggle" then
+    if Camlock.Checks['ToggleHoldMode'] == "Toggle" then
         isCamlockToggled = not isCamlockToggled
-    elseif Camlock['Checks']['ToggleHoldMode'] == "Hold" then
+    elseif Camlock.Checks['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = true
     end
 
@@ -78,13 +120,13 @@ local function toggleAimlock()
 end
 
 local function updateAim()
-    if isCamlockToggled and Camlock['Checks']['StickyAim'] then
+    if isCamlockToggled and Camlock.Checks['StickyAim'] then
         if not targetPlayer or not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
         elseif targetPlayer then
             aimAtPlayer(targetPlayer)
         end
-    elseif not Camlock['Checks']['StickyAim'] then
+    elseif not Camlock.Checks['StickyAim'] then
         targetPlayer = getClosestPlayer()
         if targetPlayer then
             aimAtPlayer(targetPlayer)
@@ -94,14 +136,14 @@ end
 
 local function onKeyPress(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Camlock['CamlockOptions']['Keybind'] then
+    if input.KeyCode == Camlock.CamlockOptions['Keybind'] then
         toggleAimlock()
     end
 end
 
 local function onKeyRelease(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Camlock['CamlockOptions']['Keybind'] and Camlock['Checks']['ToggleHoldMode'] == "Hold" then
+    if input.KeyCode == Camlock.CamlockOptions['Keybind'] and Camlock.Checks['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
@@ -118,26 +160,26 @@ UserInputService.InputEnded:Connect(onKeyRelease)
 if getgenv()['NotificationOnInject'] then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Aimlock Script",
-        Text = "Press " .. Camlock['CamlockOptions']['Keybind'].Name .. " to toggle aimlock.",
+        Text = "Press " .. Camlock.CamlockOptions['Keybind'].Name .. " to toggle aimlock.",
         Duration = 5,
     })
 end
 
 -- Expose settings using getgenv()
-getgenv()['PredictionAmount'] = Camlock['AimbotSettings']['PredictionAmount']
-getgenv()['AimbotStrengthAmount'] = Camlock['AimbotSettings']['AimbotStrengthAmount']
-getgenv()['Keybind'] = Camlock['CamlockOptions']['Keybind']
-getgenv()['EasingStyle'] = Camlock['Smoothing']['EasingStyle']
-getgenv()['Hitbox'] = Camlock['CamlockOptions']['Hitbox']
-getgenv()['StickyAim'] = Camlock['Checks']['StickyAim']
-getgenv()['SmoothingAmount'] = Camlock['Smoothing']['SmoothingAmount']
-getgenv()['SmoothingSpeed'] = Camlock['Smoothing']['SmoothingSpeed']
-getgenv()['SmoothingStyle'] = Camlock['Smoothing']['SmoothingStyle']
-getgenv()['HumanizeMovements'] = Camlock['Smoothing']['HumanizeMovements']
-getgenv()['RandomizeMovements'] = Camlock['Smoothing']['RandomizeMovements']
-getgenv()['AdaptiveSmoothing'] = Camlock['Smoothing']['AdaptiveSmoothing']
-getgenv()['Interpolation'] = Camlock['Smoothing']['Interpolation']
-getgenv()['PingCompensation'] = Camlock['Smoothing']['PingCompensation']
-getgenv()['ToggleHoldMode'] = Camlock['Checks']['ToggleHoldMode']
-getgenv()['Enabled'] = Camlock['Checks']['Enabled']
-getgenv()['UsePrediction'] = Camlock['AimbotSettings']['UsePrediction']
+getgenv()['PredictionAmount'] = Camlock.AimbotSettings['PredictionAmount']
+getgenv()['AimbotStrengthAmount'] = Camlock.AimbotSettings['AimbotStrengthAmount']
+getgenv()['Keybind'] = Camlock.CamlockOptions['Keybind']
+getgenv()['EasingStyle'] = Camlock.Smoothing['EasingStyle']
+getgenv()['Hitbox'] = Camlock.CamlockOptions['Hitbox']
+getgenv()['StickyAim'] = Camlock.Checks['StickyAim']
+getgenv()['SmoothingAmount'] = Camlock.Smoothing['SmoothingAmount']
+getgenv()['SmoothingSpeed'] = Camlock.Smoothing['SmoothingSpeed']
+getgenv()['SmoothingStyle'] = Camlock.Smoothing['SmoothingStyle']
+getgenv()['HumanizeMovements'] = Camlock.Smoothing['HumanizeMovements']
+getgenv()['RandomizeMovements'] = Camlock.Smoothing['RandomizeMovements']
+getgenv()['AdaptiveSmoothing'] = Camlock.Smoothing['AdaptiveSmoothing']
+getgenv()['Interpolation'] = Camlock.Smoothing['Interpolation']
+getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
+getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
+getgenv()['Enabled'] = Camlock.Checks['Enabled']
+getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
