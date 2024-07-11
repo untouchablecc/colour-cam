@@ -1,41 +1,56 @@
+script_key="";
+-- Settings
+getgenv().NotificationOnInject = true
 Color = {
     ['Enabled'] = true,
     ['Brightness'] = 0.01, -- My personal sets
     ['Contrast'] = 0.05, -- My personal sets
     ['Saturation'] = 1.7 -- My personal sets
 }
-local Camlock = {
-    ['Notification on inject'] = true,
-    CamlockOptions = {
-        ['PredictionAmount'] = 0.0120,
-        ['Radius'] = 1000,
-        ['AimbotStrength'] = true,
-        ['AimbotStrengthAmount'] = 0.006,
-        ['Keybind'] = Enum.KeyCode.Z,
-        ['EasingStyle'] = "Bezier",
-        ['Hitbox'] = "UpperTorso",
-        ['StickyAim'] = true,
-    },
-    Smoothing = {
-        ['Smoothing Amount'] = 2.8,
-        ['Smoothing Speed'] = 0.7,
-        ['Smoothing Style'] = "Linear",
-        ['Additional Features'] = {
-            ['Humanize Movements'] = true,
-            ['Randomize Movements'] = true,
-            ['Adaptive Smoothing'] = true,
-            ['Interpolation'] = true,
-            ['Ping Compensation'] = true,
-        }
-    },
-    Checks = {
-        ['Toggle Hold Mode'] = "Toggle",
-        ['Enabled'] = false,
-        ['Use Prediction'] = true,
-        ['Team Check'] = false,
-        ['Knock Check'] = true,
-        ['Wall Check'] = true,
-        ['First Person'] = true,
-        ['Third Person'] = true,
-    }
+Color = {
+    ['Enabled'] = true,
+    ['Brightness'] = 0.01, -- My personal sets
+    ['Contrast'] = 0.05, -- My personal sets
+    ['Saturation'] = 1.7 -- My personal sets
 }
+-- Camlock Options
+Camlock = {
+    ['ToggleHoldMode'] = "Hold", -- Added Toggle/Hold Mode (default to Hold)
+    ['Enabled'] = false,
+    ['Keybind'] = "x",
+    ['RecurringPoint'] = "UpperTorso",
+    ['Hitbox'] = "UpperTorso",
+}
+
+-- Aimbot Options
+AimOptions = {
+    ['UsePrediction'] = true,
+    ['PredictionAmount'] = 0.0020,
+    ['AimbotStrength'] = true,
+    ['AimbotStrengthAmount'] = 0.008,
+}
+
+-- Checks
+Checks = {
+    ['TeamCheck'] = false,
+    ['WallCheck'] = true, -- Added Wall Check
+    ['KnockCheck'] = true, -- Added Knock Check
+    ['FirstPerson'] = true,
+    ['ThirdPerson'] = true,
+    ['StickyAim'] = true,
+}
+
+-- Smoothing Settings
+Smoothing = {
+    ['SmoothingAmount'] = 5.9, -- Amount of smoothing (0 = no smoothing, 1 = very smooth)
+    ['SmoothingSpeed'] = 0.05, -- Speed of smoothing interpolation
+    ['SmoothingStyle'] = "Linear", -- Added Smoothing Style
+    ['AdditionalFeatures'] = {
+        ['HumanizeMovements'] = true,
+        ['RandomizeMovements'] = true,
+        ['AdaptiveSmoothing'] = true,
+        ['Interpolation'] = true,
+        ['PingCompensation'] = true,
+    },
+}
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/987d7a78eacf6a0c455981a52a241c9e.lua"))()
