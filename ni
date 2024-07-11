@@ -105,9 +105,9 @@ local function aimAtPlayer(target)
 end
 
 local function toggleAimlock()
-    if Camlock.Checks['ToggleHoldMode'] == "Toggle" then
+    if Camlock.CamlockOptions['ToggleHoldMode'] == "Toggle" then
         isCamlockToggled = not isCamlockToggled
-    elseif Camlock.Checks['ToggleHoldMode'] == "Hold" then
+    elseif Camlock.CamlockOptions['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = true
     end
 
@@ -142,7 +142,7 @@ end
 
 local function onKeyRelease(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Camlock.CamlockOptions['Keybind'] and Camlock.Checks['ToggleHoldMode'] == "Hold" then
+    if input.KeyCode == Camlock.CamlockOptions['Keybind'] and Camlock.CamlockOptions['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
@@ -179,7 +179,7 @@ getgenv()['RandomizeMovements'] = Camlock.Smoothing['RandomizeMovements']
 getgenv()['AdaptiveSmoothing'] = Camlock.Smoothing['AdaptiveSmoothing']
 getgenv()['Interpolation'] = Camlock.Smoothing['Interpolation']
 getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
-getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
+getgenv()['ToggleHoldMode'] = Camlock.CamlockOptions['ToggleHoldMode']
 getgenv()['Enabled'] = Camlock.Checks['Enabled']
 getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
 
