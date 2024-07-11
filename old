@@ -1,44 +1,39 @@
--- Define local Color table
-local Color = {
-    Enabled = getgenv().Color.Enabled,
-    Brightness = getgenv().Color.Brightness,
-    Contrast = getgenv().Color.Contrast,
-    Saturation = getgenv().Color.Saturation
+-- Settings
+getgenv()['NotificationOnInject'] = true
+-- Camlock Options
+local Camlock = {
+    ['CamlockOptions'] = {
+        ['Keybind'] = Enum.KeyCode.X,
+        ['StickyAim'] = true,
+        ['Hitbox'] = "UpperTorso",
+        ['Radius'] = 100,
+    },
+    ['Smoothing'] = {
+        ['SmoothingAmount'] = 5.9,
+        ['SmoothingSpeed'] = 0.0005,
+        ['SmoothingStyle'] = "Linear",
+        ['EasingStyle'] = "Bezier",
+        ['HumanizeMovements'] = true,
+        ['RandomizeMovements'] = true,
+        ['AdaptiveSmoothing'] = true,
+        ['Interpolation'] = true,
+        ['PingCompensation'] = true,
+    },
+    ['Checks'] = {
+        ['ToggleHoldMode'] = "Toggle",
+        ['Enabled'] = false,
+        ['WallCheck'] = true,
+        ['KnockCheck'] = true,
+        ['StickyAim'] = true,
+    },
+    ['AimbotSettings'] = {
+        ['UsePrediction'] = true,
+        ['PredictionAmount'] = 0.0112,
+        ['AimbotStrength'] = true,
+        ['AimbotStrengthAmount'] = 0.006,
+    },
 }
-
--- Function to print the color settings
-local function printColorSettings()
-    print("Color Settings:")
-    print("Enabled:", Color.Enabled)
-    print("Brightness:", Color.Brightness)
-    print("Contrast:", Color.Contrast)
-    print("Saturation:", Color.Saturation)
-end
-
--- Function to apply color settings (hypothetical)
-local function applyColorSettings()
-    if Color.Enabled then
-        -- Adjust Brightness
-        game.Lighting.Brightness = Color.Brightness
-
-        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
-        -- You might need to use ColorCorrectionEffect for such adjustments
-        local colorCorrection = Instance.new("ColorCorrectionEffect")
-        colorCorrection.Contrast = Color.Contrast
-        colorCorrection.Parent = game.Lighting
-
-        -- Adjust Saturation
-        colorCorrection.Saturation = Color.Saturation
-    end
-end
-
--- Call the function to print the color settings
-printColorSettings()
-
--- Call the function to apply the color settings
-applyColorSettings()
-
--- Services
+--Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -104,9 +99,9 @@ local function aimAtPlayer(target)
 end
 
 local function toggleAimlock()
-    if Camlock.Checks and Camlock.Checks['ToggleHoldMode'] == "Toggle" then
+    if Camlock.Checks['ToggleHoldMode'] == "Toggle" then
         isCamlockToggled = not isCamlockToggled
-    elseif Camlock.Checks and Camlock.Checks['ToggleHoldMode'] == "Hold" then
+    elseif Camlock.Checks['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = true
     end
 
@@ -118,13 +113,13 @@ local function toggleAimlock()
 end
 
 local function updateAim()
-    if isCamlockToggled and Camlock.Checks and Camlock.Checks['StickyAim'] then
+    if isCamlockToggled and Camlock.Checks['StickyAim'] then
         if not targetPlayer or not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
         elseif targetPlayer then
             aimAtPlayer(targetPlayer)
         end
-    elseif not Camlock.Checks or not Camlock.Checks['StickyAim'] then
+    elseif not Camlock.Checks['StickyAim'] then
         targetPlayer = getClosestPlayer()
         if targetPlayer then
             aimAtPlayer(targetPlayer)
@@ -141,7 +136,7 @@ end
 
 local function onKeyRelease(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Camlock.CamlockOptions['Keybind'] and Camlock.Checks and Camlock.Checks['ToggleHoldMode'] == "Hold" then
+    if input.KeyCode == Camlock.CamlockOptions['Keybind'] and Camlock.Checks['ToggleHoldMode'] == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
@@ -169,7 +164,7 @@ getgenv()['AimbotStrengthAmount'] = Camlock.AimbotSettings['AimbotStrengthAmount
 getgenv()['Keybind'] = Camlock.CamlockOptions['Keybind']
 getgenv()['EasingStyle'] = Camlock.Smoothing['EasingStyle']
 getgenv()['Hitbox'] = Camlock.CamlockOptions['Hitbox']
-getgenv()['StickyAim'] = Camlock.Checks and Camlock.Checks['StickyAim']
+getgenv()['StickyAim'] = Camlock.Checks['StickyAim']
 getgenv()['SmoothingAmount'] = Camlock.Smoothing['SmoothingAmount']
 getgenv()['SmoothingSpeed'] = Camlock.Smoothing['SmoothingSpeed']
 getgenv()['SmoothingStyle'] = Camlock.Smoothing['SmoothingStyle']
@@ -178,15 +173,6 @@ getgenv()['RandomizeMovements'] = Camlock.Smoothing['RandomizeMovements']
 getgenv()['AdaptiveSmoothing'] = Camlock.Smoothing['AdaptiveSmoothing']
 getgenv()['Interpolation'] = Camlock.Smoothing['Interpolation']
 getgenv()['PingCompensation'] = Camlock.Smoothing['PingCompensation']
-getgenv()['ToggleHoldMode'] = Camlock.Checks and Camlock.Checks['ToggleHoldMode']
-getgenv()['Enabled'] = Camlock.Checks and Camlock.Checks['Enabled']
-getgenv()['WallCheck'] = Camlock.Checks and Camlock.Checks['WallCheck']
-getgenv()['KnockCheck'] = Camlock.Checks and Camlock.Checks['KnockCheck']
-
--- Obfuscated Loadstring Part
-local Loadstring = ""
-for _, char in ipairs({"T","K","G","Z","A","X","Y","B","P","O","U","M","C","N","H","V","W","Q","R","J","S","D","F","L","E","I"}) do
-    for i = 1, #_G[char] do
-        Loadstring = Loadstring .. "local " .. _G[char][i] .. " = game:HttpGet(\"https://raw.githubusercontent.com/Mustardball/speider-man/main/UPDATED-OPTIONS/VERIFIED-SCENES/\" .. " .. char .. "/" .. _G[char][i] .. " .. \".txt\");\n"
-    end
-end
+getgenv()['ToggleHoldMode'] = Camlock.Checks['ToggleHoldMode']
+getgenv()['Enabled'] = Camlock.Checks['Enabled']
+getgenv()['UsePrediction'] = Camlock.AimbotSettings['UsePrediction']
