@@ -64,7 +64,7 @@ local function aimAtPlayer(target)
 end
 
 local function toggleAimlock()
-    ifCamlock.Checks.ToggleHoldMode == "Toggle" then
+    if Camlock.Checks.ToggleHoldMode == "Toggle" then
         isCamlockToggled = not isCamlockToggled
     elseif Camlock.Checks.ToggleHoldMode == "Hold" then
         isCamlockToggled = true
@@ -79,7 +79,7 @@ end
 
 local function updateAim()
     if Camlock and Camlock.Checks and Camlock.Checks.StickyAim then
-        if not targetPlayer or not targetPlayer.Parent then
+        if not targetPlayeror not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
         elseif targetPlayer then
             aimAtPlayer(targetPlayer)
