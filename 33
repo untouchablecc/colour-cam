@@ -40,12 +40,6 @@ local function lerp(a, b, t)
     return a + (b - a) * t
 end
 
-local easingFunctions = {
-    ['Linear'] = function(t) return t end,
-    ['Sine'] = function(t) return 1 - math.cos((t * math.pi) / 2) end,
-    ['Quad'] = function(t) return t * t end,
-}
-
 local function getClosestPlayer()
     local closestPlayer = nil
     local shortestDistance = Camlock['CamlockOptions']['Radius']
