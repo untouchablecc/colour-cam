@@ -92,10 +92,9 @@ local function updateAim()
     end
 end
 
-local function onKeyPress(input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-    if input.KeyCode == Camlock.CamlockOptions.Keybind then
-        toggleAimlock()
+local function onKeyPress(inputObject)
+    if inputObject.KeyCode == Camlock.CamlockOptions.Keybind then
+        -- Your code here
     end
 end
 
