@@ -1,5 +1,47 @@
--- Ensure that the Camlock table is accessible
-assert(Camlock and Camlock['Checks'], "Camlock or Checks is nil")
+-- Settings
+getgenv()['NotificationOnInject'] = true
+
+-- Camlock Options
+local Camlock = {
+    ['CamlockOptions'] = {
+        ['Keybind'] = Enum.KeyCode.X,
+        ['StickyAim'] = true,
+        ['Hitbox'] = "UpperTorso",
+        ['Radius'] = 100,
+    },
+    ['Smoothing'] = {
+        ['SmoothingAmount'] = 5.9,
+        ['SmoothingSpeed'] = 0.0005,
+        ['SmoothingStyle'] = "Linear",
+        ['EasingStyle'] = "Bezier",
+        ['HumanizeMovements'] = true,
+        ['RandomizeMovements'] = true,
+        ['AdaptiveSmoothing'] = true,
+        ['Interpolation'] = true,
+        ['PingCompensation'] = true,
+    },
+    ['Checks'] = {
+        ['ToggleHoldMode'] = "Toggle",
+        ['Enabled'] = false,
+        ['WallCheck'] = true,
+        ['KnockCheck'] = true,
+        ['StickyAim'] = true,
+        ['TeamCheck'] = false,
+    },
+    ['AimbotSettings'] = {
+        ['UsePrediction'] = true,
+        ['PredictionAmount'] = 0.0112,
+        ['AimbotStrength'] = true,
+        ['AimbotStrengthAmount'] = 0.006,
+    },
+}
+
+getgenv().Color = {
+    ['Enabled'] = true,
+    ['Brightness'] = 0.01,
+    ['Contrast'] = 0.05,
+    ['Saturation'] = 1.7
+}
 
 -- Define local Color table
 local Color = {
@@ -21,22 +63,16 @@ end
 -- Function to apply color settings
 local function applyColorSettings()
     if Color.Enabled then
-        -- Adjust Brightness
         game.Lighting.Brightness = Color.Brightness
-
-        -- Adjust Contrast
         local colorCorrection = Instance.new("ColorCorrectionEffect")
         colorCorrection.Contrast = Color.Contrast
-        colorCorrection.Parent = game.Lighting
-
-        -- Adjust Saturation
         colorCorrection.Saturation = Color.Saturation
+        colorCorrection.Parent = game.Lighting
     end
 end
 
 -- Call the function to print the color settings
 printColorSettings()
-
 -- Call the function to apply the color settings
 applyColorSettings()
 
@@ -55,12 +91,6 @@ local isCamlockToggled = false
 local function lerp(a, b, t)
     return a + (b - a) * t
 end
-
-local easingFunctions = {
-    ['Linear'] = function(t) return t end,
-    ['Sine'] = function(t) return 1 - math.cos((t * math.pi) / 2) end,
-    ['Quad'] = function(t) return t * t end,
-}
 
 local function getClosestPlayer()
     local closestPlayer = nil
@@ -93,12 +123,9 @@ local function aimAtPlayer(target)
 
     local hitbox = character[Camlock['CamlockOptions']['Hitbox']]
     local targetPosition = hitbox.Position
-    local targetPositionOnScreen = Vector2.new(Camera:WorldToScreenPoint(targetPosition).X, Camera:WorldToScreenPoint(targetPosition).Y)
-    local mousePosition = UserInputService:GetMouseLocation()
-
+    local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     local t = Camlock['Smoothing']['SmoothingAmount'] * Camlock['Smoothing']['SmoothingSpeed']
     t = math.clamp(t, 0, 1)
-    local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     Camera.CFrame = Camera.CFrame:lerp(targetCFrame, t)
 end
 
@@ -117,7 +144,7 @@ local function toggleAimlock()
 end
 
 local function updateAim()
-    if Camlock['Checks']['Enabled'] then
+    if Camlock and Camlock['Checks'] and Camlock['Checks']['Enabled'] then
         if isCamlockToggled and Camlock['Checks']['StickyAim'] then
             if not targetPlayer or not targetPlayer.Parent then
                 targetPlayer = getClosestPlayer()
