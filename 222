@@ -77,7 +77,6 @@ local function toggleAimlock()
     end
 end
 
-
 local function updateAim()
     if Camlock and Camlock.Checks and Camlock.Checks.StickyAim then
         if not targetPlayer or not targetPlayer.Parent then
