@@ -1,3 +1,10 @@
+getgenv().Color = {
+    ['Enabled'] = true,
+    ['Brightness'] = 0.01,
+    ['Contrast'] = 0.05,
+    ['Saturation'] = 1.7
+}
+
 -- Define local Color table
 local Color = {
     Enabled = getgenv().Color.Enabled,
