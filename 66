@@ -1,9 +1,5 @@
-getgenv().Color = {
-    ['Enabled'] = true,
-    ['Brightness'] = 0.01,
-    ['Contrast'] = 0.05,
-    ['Saturation'] = 1.7
-}
+-- Ensure that the Camlock table is accessible
+assert(Camlock and Camlock['Checks'], "Camlock or Checks is nil")
 
 -- Define local Color table
 local Color = {
@@ -22,14 +18,13 @@ local function printColorSettings()
     print("Saturation:", Color.Saturation)
 end
 
--- Function to apply color settings (hypothetical)
+-- Function to apply color settings
 local function applyColorSettings()
     if Color.Enabled then
         -- Adjust Brightness
         game.Lighting.Brightness = Color.Brightness
 
-        -- Adjust Contrast (hypothetical example as Roblox does not have direct contrast setting)
-        -- You might need to use ColorCorrectionEffect for such adjustments
+        -- Adjust Contrast
         local colorCorrection = Instance.new("ColorCorrectionEffect")
         colorCorrection.Contrast = Color.Contrast
         colorCorrection.Parent = game.Lighting
@@ -65,7 +60,6 @@ local easingFunctions = {
     ['Linear'] = function(t) return t end,
     ['Sine'] = function(t) return 1 - math.cos((t * math.pi) / 2) end,
     ['Quad'] = function(t) return t * t end,
-    -- Add more easing functions as needed
 }
 
 local function getClosestPlayer()
@@ -106,8 +100,6 @@ local function aimAtPlayer(target)
     t = math.clamp(t, 0, 1)
     local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     Camera.CFrame = Camera.CFrame:lerp(targetCFrame, t)
-
-    -- Optionally, you can apply further interpolation or easing here if needed
 end
 
 local function toggleAimlock()
@@ -163,7 +155,7 @@ RunService.RenderStepped:Connect(updateAim)
 UserInputService.InputBegan:Connect(onKeyPress)
 UserInputService.InputEnded:Connect(onKeyRelease)
 
--- Optional: Show a notification to the player when the script starts
+-- Notification
 if getgenv()['NotificationOnInject'] then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Aimlock Script",
