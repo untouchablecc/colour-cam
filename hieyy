@@ -1,9 +1,15 @@
 -- Ensure Camlock is initialized with default values
 local Camlock = defaultCamlock
 
--- Function to check if Camlock and its fields are nil
-local function isCamlockValid()
-    return Camlock and Camlock.CamlockOptions and Camlock.Smoothing and Camlock.Checks and Camlock.AimbotSettings
+-- Function to safely access nested fields
+local function safeGet(tbl, keys)
+    for _, key in ipairs(keys) do
+        if tbl == nil then
+            return nil
+        end
+        tbl = tbl[key]
+    end
+    return tbl
 end
 
 -- Function to print the color settings
@@ -71,19 +77,20 @@ local easingFunctions = {
 
 -- Function to get the closest player within the radius
 local function getClosestPlayer()
-    if not isCamlockValid() then
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not camlockOptions then
         return nil
     end
 
     local closestPlayer = nil
-    local shortestDistance = Camlock.CamlockOptions.Radius
+    local shortestDistance = camlockOptions.Radius
     local mousePosition = UserInputService:GetMouseLocation()
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and (not Camlock.Checks or not Camlock.Checks.TeamCheck or player.Team ~= LocalPlayer.Team) then
+        if player ~= LocalPlayer and (not safeGet(Camlock, {"Checks"}) or not Camlock.Checks.TeamCheck or player.Team ~= LocalPlayer.Team) then
             local character = player.Character
-            if character and character:FindFirstChild(Camlock.CamlockOptions.Hitbox) then
-                local hitbox = character[Camlock.CamlockOptions.Hitbox]
+            if character and character:FindFirstChild(camlockOptions.Hitbox) then
+                local hitbox = character[camlockOptions.Hitbox]
                 local screenPoint = Camera:WorldToScreenPoint(hitbox.Position)
                 local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
 
@@ -100,21 +107,23 @@ end
 
 -- Function to aim at the specified player
 local function aimAtPlayer(target)
-    if not isCamlockValid() or not target then
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not camlockOptions or not target then
         return
     end
 
     local character = target.Character
-    if not character or not character:FindFirstChild(Camlock.CamlockOptions.Hitbox) then
+    if not character or not character:FindFirstChild(camlockOptions.Hitbox) then
         return
     end
 
-    local hitbox = character[Camlock.CamlockOptions.Hitbox]
+    local hitbox = character[camlockOptions.Hitbox]
     local targetPosition = hitbox.Position
     local targetPositionOnScreen = Vector2.new(Camera:WorldToScreenPoint(targetPosition).X, Camera:WorldToScreenPoint(targetPosition).Y)
     local mousePosition = UserInputService:GetMouseLocation()
 
-    local t = Camlock.Smoothing.SmoothingAmount * Camlock.Smoothing.SmoothingSpeed
+    local smoothing = safeGet(Camlock, {"Smoothing"})
+    local t = safeGet(smoothing, {"SmoothingAmount"}) * safeGet(smoothing, {"SmoothingSpeed"})
     t = math.clamp(t, 0, 1)
     local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + (hitbox.Position - Camera.CFrame.Position).Unit)
     Camera.CFrame = Camera.CFrame:lerp(targetCFrame, t)
@@ -124,13 +133,15 @@ end
 
 -- Function to toggle aimlock
 local function toggleAimlock()
-    if not isCamlockValid() then
+    local checks = safeGet(Camlock, {"Checks"})
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not checks or not camlockOptions then
         return
     end
 
-    if Camlock.Checks.ToggleHoldMode == "Toggle" then
+    if checks.ToggleHoldMode == "Toggle" then
         isCamlockToggled = not isCamlockToggled
-    elseif Camlock.Checks.ToggleHoldMode == "Hold" then
+    elseif checks.ToggleHoldMode == "Hold" then
         isCamlockToggled = true
     end
 
@@ -143,18 +154,19 @@ end
 
 -- Function to update aim based on aimlock status
 local function updateAim()
-    if not isCamlockValid() then
-        print("Camlock or its fields are nil")
+    local checks = safeGet(Camlock, {"Checks"})
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not checks or not camlockOptions then
         return
     end
 
-    if isCamlockToggled and Camlock.Checks.StickyAim then
+    if isCamlockToggled and checks.StickyAim then
         if not targetPlayer or not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
         elseif targetPlayer then
             aimAtPlayer(targetPlayer)
         end
-    elseif not Camlock.Checks.StickyAim then
+    elseif not checks.StickyAim then
         targetPlayer = getClosestPlayer()
         if targetPlayer then
             aimAtPlayer(targetPlayer)
@@ -168,12 +180,12 @@ local function onKeyPress(input, gameProcessedEvent)
         return
     end
 
-    if not isCamlockValid() or not Camlock.CamlockOptions then
-        print("Camlock or Camlock.CamlockOptions is nil")
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not camlockOptions then
         return
     end
 
-    if input.KeyCode == Camlock.CamlockOptions.Keybind then
+    if input.KeyCode == camlockOptions.Keybind then
         toggleAimlock()
     end
 end
@@ -184,11 +196,13 @@ local function onKeyRelease(input, gameProcessedEvent)
         return
     end
 
-    if not isCamlockValid() or not Camlock.CamlockOptions or not Camlock.Checks then
+    local checks = safeGet(Camlock, {"Checks"})
+    local camlockOptions = safeGet(Camlock, {"CamlockOptions"})
+    if not checks or not camlockOptions then
         return
     end
 
-    if input.KeyCode == Camlock.CamlockOptions.Keybind and Camlock.Checks.ToggleHoldMode == "Hold" then
+    if input.KeyCode == camlockOptions.Keybind and checks.ToggleHoldMode == "Hold" then
         isCamlockToggled = false
         targetPlayer = nil
     end
