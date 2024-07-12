@@ -78,13 +78,13 @@ local function toggleAimlock()
 end
 
 local function updateAim()
-    if isCamlockToggled and Camlock.Checks.StickyAim then
+    if Camlock and Camlock.Checks and Camlock.Checks.StickyAim then
         if not targetPlayer or not targetPlayer.Parent then
-            targetPlayer= getClosestPlayer()
+            targetPlayer = getClosestPlayer()
         elseif targetPlayer then
             aimAtPlayer(targetPlayer)
         end
-    elseif not Camlock.Checks.StickyAim then
+    elseif Camlock and Camlock.Checks and not Camlock.Checks.StickyAim then
         targetPlayer = getClosestPlayer()
         if targetPlayer then
             aimAtPlayer(targetPlayer)
