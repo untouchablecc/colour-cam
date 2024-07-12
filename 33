@@ -1,16 +1,22 @@
--- Define local Color table
-local Color = getgenv().Color
-
--- Function to print the color settings
-local function printColorSettings()
-    print("Color Settings:")
-    print("Enabled:", Color.Enabled)
-    print("Brightness:", Color.Brightness)
-    print("Contrast:", Color.Contrast)
-    print("Saturation:", Color.Saturation)
+-- Function to update aim
+local function updateAim()
+    if Camlock and Camlock['Checks']['Enabled'] then
+        if isCamlockToggled and Camlock['Checks']['StickyAim'] then
+            if not targetPlayer or not targetPlayer.Parent then
+                targetPlayer = getClosestPlayer()
+            elseif targetPlayer then
+                aimAtPlayer(targetPlayer)
+            end
+        elseif not Camlock['Checks']['StickyAim'] then
+            targetPlayer = getClosestPlayer()
+            if targetPlayer then
+                aimAtPlayer(targetPlayer)
+            end
+        end
+    end
 end
 
--- Function to apply color settings
+-- Call the function to apply color settings
 local function applyColorSettings()
     if Color.Enabled then
         game.Lighting.Brightness = Color.Brightness
@@ -21,7 +27,7 @@ local function applyColorSettings()
     end
 end
 
-printColorSettings()
+-- Call to apply color settings
 applyColorSettings()
 
 -- Services
