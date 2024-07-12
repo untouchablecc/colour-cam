@@ -118,6 +118,11 @@ local function toggleAimlock()
 end
 
 local function updateAim()
+    if not Camlock or not Camlock['Checks'] then
+        print("Camlock or Camlock.Checks is nil")
+        return
+    end
+
     if isCamlockToggled and Camlock['Checks']['StickyAim'] then
         if not targetPlayer or not targetPlayer.Parent then
             targetPlayer = getClosestPlayer()
