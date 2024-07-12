@@ -1,4 +1,4 @@
--- Ensure Camlock is initialized with default values
+-- Initialize Camlock with default values
 local Camlock = defaultCamlock
 
 -- Function to safely access nested fields
@@ -226,17 +226,4 @@ end
 getgenv()['PredictionAmount'] = Camlock.AimbotSettings and Camlock.AimbotSettings.PredictionAmount or 0
 getgenv()['AimbotStrengthAmount'] = Camlock.AimbotSettings and Camlock.AimbotSettings.AimbotStrengthAmount or 0
 getgenv()['Keybind'] = Camlock.CamlockOptions and Camlock.CamlockOptions.Keybind or Enum.KeyCode.Unknown
-getgenv()['EasingStyle'] = safeGet(Camlock.Smoothing, {"EasingStyle"}) or "Linear"
-getgenv()['Hitbox'] = safeGet(Camlock.CamlockOptions, {"Hitbox"}) or ""
-getgenv()['StickyAim'] = safeGet(Camlock.Checks, {"StickyAim"}) or false
-getgenv()['SmoothingAmount'] = safeGet(Camlock.Smoothing, {"SmoothingAmount"}) or 0
-getgenv()['SmoothingSpeed'] = safeGet(Camlock.Smoothing, {"SmoothingSpeed"}) or 0
-getgenv()['SmoothingStyle'] = safeGet(Camlock.Smoothing, {"SmoothingStyle"}) or "Linear"
-getgenv()['HumanizeMovements'] = safeGet(Camlock.Smoothing, {"HumanizeMovements"}) or false
-getgenv()['RandomizeMovements'] = safeGet(Camlock.Smoothing, {"RandomizeMovements"}) or false
-getgenv()['AdaptiveSmoothing'] = safeGet(Camlock.Smoothing, {"AdaptiveSmoothing"}) or false
-getgenv()['Interpolation'] = safeGet(Camlock.Smoothing, {"Interpolation"}) or false
-getgenv()['PingCompensation'] = safeGet(Camlock.Smoothing, {"PingCompensation"}) or false
-getgenv()['ToggleHoldMode'] = safeGet(Camlock.Checks, {"ToggleHoldMode"}) or "Toggle"
-getgenv()['Enabled'] = safeGet(Camlock.Checks, {"Enabled"}) or false
-getgenv()['UsePrediction'] = safeGet(Camlock.AimbotSettings, {"UsePrediction"}) or false
+getgenv()['EasingStyle'] = Camlock.Smoothing and Camlock.Smoothing.EasingStyle or "Linear"
